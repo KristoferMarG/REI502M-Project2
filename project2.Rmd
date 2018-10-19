@@ -7,6 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(arules)
 library(funModeling)
+library(RWeka)
 ```
 
 ### 1. Objectives
@@ -19,23 +20,25 @@ What is the data?
 Describe preprocessing (choices in discretization + decisions to ignore attributes)
 
 R kóði - Data read, discretization, remove some attributes?
+
 ```{r data}
 
-bank.full <- read.csv("bank-full.csv", sep=";")
-str(bank.full)
 
-bank.full$age <- cut(bank.full$age, 5)
-bank.full$balance <- cut(bank.full$balance, 5)
-bank.full$day <- cut(bank.full$day, 31)
-bank.full$duration <- cut(bank.full$duration, 5)
-bank.full$campaign <- cut(bank.full$campaign, 3)
-bank.full$pdays <- cut(bank.full$pdays, 5)
-bank.full$previous <- cut(bank.full$previous, 3)
+chronic <- read.arff("chronic_kidney_disease_full.arff")
 
-tData <- as (bank.full, "transactions")
+
+#bank.full$age <- cut(bank.full$age, 5)
+#bank.full$balance <- cut(bank.full$balance, 5)
+#bank.full$day <- cut(bank.full$day, 31)
+#bank.full$duration <- cut(bank.full$duration, 5)
+#bank.full$campaign <- cut(bank.full$campaign, 3)
+#bank.full$pdays <- cut(bank.full$pdays, 5)
+#bank.full$previous <- cut(bank.full$previous, 3)
+
+tData <- as (chronic, "transactions")
 #size(head(tData))
-
 #LIST(head(tData, 3))
+
 
 ```
 
@@ -44,8 +47,12 @@ tData <- as (bank.full, "transactions")
 Using apriori make lists of rules - Most support, Most confidence, Lift .....
 Try out different parameters - different length for rules, different thresholds ... more?
 
-```{r data}
+```{r seconddata}
 
+
+rules <- apriori(tData, parameter=list(support = 0.005, confidence = 0.8, minlen=2), appearance = list(rhs=c("")))  
+
+inspect(rules)
 
 
 ```
