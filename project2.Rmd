@@ -58,9 +58,9 @@ chronic <- read.arff("chronic_kidney_disease_full.arff")
 
 
 # dicretize using equal freq 
-chronicDisc <- discretizeDF(chronic, methods = list(
+chronic_freq <- discretizeDF(chronic, methods = list(
   age = list(method = "frequency", breaks = 10 ),
-  bp  = list(method = "frequency", breaks = 3 ),
+  bp  = list(method = "frequency", breaks = 3  ),
   bgr = list(method = "frequency", breaks = 10 ),
   bu  = list(method = "frequency", breaks = 10 ),
   sc  = list(method = "frequency", breaks = 10 ),
@@ -70,6 +70,22 @@ chronicDisc <- discretizeDF(chronic, methods = list(
   pcv = list(method = "frequency", breaks = 10 ),
   wbcc= list(method = "frequency", breaks = 10 ),
   rbcc= list(method = "frequency", breaks = 10 )
+  
+  ))
+
+# dicretize using equal freq 
+chronic_interval <- discretizeDF(chronic, methods = list(
+  age = list(method = "interval", breaks = 10 ),
+  bp  = list(method = "interval", breaks = 10 ),
+  bgr = list(method = "interval", breaks = 10 ),
+  bu  = list(method = "interval", breaks = 10 ),
+  sc  = list(method = "interval", breaks = 10 ),
+  sod = list(method = "interval", breaks = 10 ),
+  pot = list(method = "interval", breaks = 10 ),
+  hemo= list(method = "interval", breaks = 10 ),
+  pcv = list(method = "interval", breaks = 10 ),
+  wbcc= list(method = "interval", breaks = 10 ),
+  rbcc= list(method = "interval", breaks = 10 )
   
   ))
 
@@ -84,17 +100,28 @@ Using apriori make lists of rules - Most support, Most confidence, Lift .....
 Try out different parameters - different length for rules, different thresholds ... more?
 
 
-```{r seconddata}
+```{r seconddata, include=FALSE}
 
+freq.rules <- apriori(chronic_freq, parameter=list(support = 0.1, 
+              confidence = 0.8, minlen=3),appearance = list(rhs=c("class=ckd")))  
 
-rules <- apriori(tData, parameter=list(support = 0.1, confidence = 0.8, minlen=3), 
-                 appearance = list(rhs=c("class=ckd")))  
-
-rules.sorted <- sort(rules, by="lift")
-inspect(rules.sorted)
-
+interval.rules <- apriori(chronic_interval, parameter=list(support = 0.1,
+                  confidence = 0.8, minlen=3), appearance = list(rhs=c("class=ckd")))  
 
 ```
+
+```{r summary}
+
+sum.freq <- summary(freq.rules)
+sum.interval <- summary(interval.rules)
+
+sum.freq@quality
+
+sum.interval@quality
+```
+
+
+
 
 ### 4. Results + Recommendations
 

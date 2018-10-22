@@ -133,51 +133,64 @@ $(document).ready(function () {
 24.Anemia(nominal) ——————– ane - (yes,no). 25.Class (nominal) ——————- class - (ckd,notckd).</p>
 <p>Describe preprocessing (choices in discretization + decisions to ignore attributes)</p>
 <p>R kóði - Data read, discretization, remove some attributes?</p>
-<pre class="r"><code>chronic &lt;- read.arff(&quot;chronic_kidney_disease_full.arff&quot;)
+<pre class="r"><code># read in .arff file
+chronic &lt;- read.arff(&quot;chronic_kidney_disease_full.arff&quot;)
 
 
-#range 2-90
-chronic$age &lt;- cut(chronic$age, c(2,10,20,30,40,50,60,70,80,90) )
-levels(chronic$age) &lt;- c('2-10','10-20','20-30','30-40','40-50',
-                         '50-60','60-70','70-80','80-90','90')  
+# dicretize using equal freq 
+chronic_freq &lt;- discretizeDF(chronic, methods = list(
+  age = list(method = &quot;frequency&quot;, breaks = 10 ),
+  bp  = list(method = &quot;frequency&quot;, breaks = 3  ),
+  bgr = list(method = &quot;frequency&quot;, breaks = 10 ),
+  bu  = list(method = &quot;frequency&quot;, breaks = 10 ),
+  sc  = list(method = &quot;frequency&quot;, breaks = 10 ),
+  sod = list(method = &quot;frequency&quot;, breaks = 10 ),
+  pot = list(method = &quot;frequency&quot;, breaks = 10 ),
+  hemo= list(method = &quot;frequency&quot;, breaks = 10 ),
+  pcv = list(method = &quot;frequency&quot;, breaks = 10 ),
+  wbcc= list(method = &quot;frequency&quot;, breaks = 10 ),
+  rbcc= list(method = &quot;frequency&quot;, breaks = 10 )
+  
+  ))
 
-#range 50-180
-chronic$bp &lt;- cut(chronic$bp, 8 )
-levels(chronic$bp) &lt;- c('50-80','80-90','90-110','110-130','130-150','150-160','160-170','170-180')  
-#range 22-490
-chronic$bgr &lt;- cut(chronic$bgr, 50 )
-#range 1.5-391
-chronic$bu &lt;- cut(chronic$bu, 20 )
-#range 0.4-76
-chronic$sc &lt;- cut(chronic$sc, 20 )
-#range 4.5-163
-chronic$sod &lt;- cut(chronic$sod, 50 )
-#range 2.5-47
-chronic$pot &lt;- cut(chronic$pot, 50 )
-#range 3.1-17.8
-chronic$hemo &lt;- cut(chronic$hemo, 20 )
-#range 9-54
-chronic$pcv &lt;- cut(chronic$pcv, 20 )
-#range 2200-26400 (wbcc í raun er um 10-15)
-chronic$wbcc &lt;- cut(chronic$wbcc, 10 )
-levels(chronic$wbcc) &lt;- c('2200-5000','5000-7000','7000-8000','8000-9000','9000-10000',
-                          '10000-15000','15000-17000','17000-19000','19000-21000','21000+')  
-#range 2.1-8
-chronic$rbcc &lt;- cut(chronic$rbcc, 20 )
-
-
-
-tData &lt;- as (chronic, &quot;transactions&quot;)
-#size(head(tData))
-#LIST(head(tData, 3))</code></pre>
+# dicretize using equal freq 
+chronic_interval &lt;- discretizeDF(chronic, methods = list(
+  age = list(method = &quot;interval&quot;, breaks = 10 ),
+  bp  = list(method = &quot;interval&quot;, breaks = 10 ),
+  bgr = list(method = &quot;interval&quot;, breaks = 10 ),
+  bu  = list(method = &quot;interval&quot;, breaks = 10 ),
+  sc  = list(method = &quot;interval&quot;, breaks = 10 ),
+  sod = list(method = &quot;interval&quot;, breaks = 10 ),
+  pot = list(method = &quot;interval&quot;, breaks = 10 ),
+  hemo= list(method = &quot;interval&quot;, breaks = 10 ),
+  pcv = list(method = &quot;interval&quot;, breaks = 10 ),
+  wbcc= list(method = &quot;interval&quot;, breaks = 10 ),
+  rbcc= list(method = &quot;interval&quot;, breaks = 10 )
+  
+  ))</code></pre>
 </div>
 <div id="rule-mining-process" class="section level3">
 <h3>3. Rule mining process</h3>
 <p>Using apriori make lists of rules - Most support, Most confidence, Lift ….. Try out different parameters - different length for rules, different thresholds … more?</p>
-<pre class="r"><code>#rules &lt;- apriori(tData, parameter=list(support = 0.005, confidence = 0.8, minlen=2), 
-                 #appearance = list(rhs=c(&quot;class=ckd&quot;)))  
+<pre class="r"><code>sum.freq &lt;- summary(freq.rules)
+sum.interval &lt;- summary(interval.rules)
 
-#inspect(rules)</code></pre>
+sum.freq@quality</code></pre>
+<pre><code>##     support         confidence      lift         count       
+##  Min.   :0.1000   Min.   :1    Min.   :1.6   Min.   : 40.00  
+##  1st Qu.:0.1075   1st Qu.:1    1st Qu.:1.6   1st Qu.: 43.00  
+##  Median :0.1225   Median :1    Median :1.6   Median : 49.00  
+##  Mean   :0.1357   Mean   :1    Mean   :1.6   Mean   : 54.27  
+##  3rd Qu.:0.1475   3rd Qu.:1    3rd Qu.:1.6   3rd Qu.: 59.00  
+##  Max.   :0.3375   Max.   :1    Max.   :1.6   Max.   :135.00</code></pre>
+<pre class="r"><code>sum.interval@quality</code></pre>
+<pre><code>##     support         confidence          lift           count       
+##  Min.   :0.1000   Min.   :0.8511   Min.   :1.362   Min.   : 40.00  
+##  1st Qu.:0.1075   1st Qu.:1.0000   1st Qu.:1.600   1st Qu.: 43.00  
+##  Median :0.1200   Median :1.0000   Median :1.600   Median : 48.00  
+##  Mean   :0.1321   Mean   :0.9999   Mean   :1.600   Mean   : 52.82  
+##  3rd Qu.:0.1450   3rd Qu.:1.0000   3rd Qu.:1.600   3rd Qu.: 58.00  
+##  Max.   :0.3375   Max.   :1.0000   Max.   :1.600   Max.   :135.00</code></pre>
 </div>
 <div id="results-recommendations" class="section level3">
 <h3>4. Results + Recommendations</h3>
