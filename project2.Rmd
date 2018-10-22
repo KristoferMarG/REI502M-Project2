@@ -1,11 +1,14 @@
 ---
 title: "Project 2"
+author: Jón Þorsteinsson - jth56@hi.is
+#author: Kristófer Már Gíslason - kmg
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(arules)
+library(arulesViz)
 library(funModeling)
 library(RWeka)
 ```
@@ -100,14 +103,17 @@ Using apriori make lists of rules - Most support, Most confidence, Lift .....
 Try out different parameters - different length for rules, different thresholds ... more?
 
 
-```{r seconddata, include=FALSE}
+```{r seconddata}
 
 freq.rules <- apriori(chronic_freq, parameter=list(support = 0.1, 
-              confidence = 0.8, minlen=3),appearance = list(rhs=c("class=ckd")))  
+              confidence = 0.8, minlen=2),appearance = list(rhs=c("class=ckd")))  
 
 interval.rules <- apriori(chronic_interval, parameter=list(support = 0.1,
-                  confidence = 0.8, minlen=3), appearance = list(rhs=c("class=ckd")))  
+                  confidence = 0.8, minlen=2), appearance = list(rhs=c("class=ckd")))  
 
+
+plot(freq.rules)
+plot(interval.rules)
 ```
 
 ```{r summary}
