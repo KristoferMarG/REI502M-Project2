@@ -1,7 +1,8 @@
 ---
 title: "Project 2"
-author: Jón Þorsteinsson - jth56@hi.is
-#author: Kristófer Már Gíslason - kmg
+author: 
+  - Jón Þorsteinsson - jth56@hi.is
+  - Kristófer Már Gíslason - kmg14@hi.is
 output: html_document
 ---
 
@@ -15,7 +16,7 @@ library(RWeka)
 
 ### 1. Objectives
 
-The data set we are working with predicts if a patient is likely or not to have a chronic kidney disease based on various attributes that are all based on different tests. The objective of the project is to use association rule mining to identify patterns between different attributes of the data set. If the patterns we find are good enough it might be possible for doctors to skip certain tests on patients which could then hopefully save some time in diagnosing different symptoms.
+The data set we are working with predicts if a patient is likely or not to have a chronic kidney disease based on various attributes that are all based on different medical tests. The objective of the project is to use association rule mining to identify patterns between different attributes of the data set. If the patterns we find are good enough it might be possible for doctors to skip certain tests on patients which could then hopefully save some time in diagnosing different symptoms.
 
 ### 2. Data set description
 
@@ -49,12 +50,13 @@ The data set has 400 different instances that each contain 24 different attribut
 | 24. | Anemia | nominal | ane - (yes,no)| 
 | 25. | Class | nominal | class - (ckd,notckd)|
 
-#Describe preprocessing (choices in discretization + decisions to ignore attributes)
 
-We decided to try 3 different ways of dicretizising our numerical variables. We used equal frequency, equal intervals an k-means clustering
+###Describe preprocessing (choices in discretization + decisions to ignore attributes)
+
+We decided to try 3 different ways of discretizising our numerical variables. We used equal frequency, equal intervals an k-means clustering. In our opinion it was not necessary to remove / ignore any attributes because each of the attributes was a specific medical test and therefore had some valuable information.
 
 
-```{r data}
+```{r data, tidy = TRUE}
 # read in .arff file
 chronic <- read.arff("chronic_kidney_disease_full.arff")
 
@@ -74,7 +76,7 @@ chronic_freq <- discretizeDF(chronic, methods = list(
   rbcc= list(method = "frequency", breaks = 10 )
   ))
 
-# dicretize using equal freq 
+# dicretize using equal interval
 chronic_interval <- discretizeDF(chronic, methods = list(
   age = list(method = "interval", breaks = 10 ),
   bp  = list(method = "interval", breaks = 10 ),
@@ -115,10 +117,10 @@ chronic_cluster$class <- NULL
 Using apriori make lists of rules - Most support, Most confidence, Lift .....
 Try out different parameters - different length for rules, different thresholds ... more?
 
-Since the data set is not very big we decided to put the minimum support threshold at 0.05 to prevent getting results that could be coincidental. We also decided to set the confidence factor pretty high at 0.9 since we are looking for strong rules.
+Since the data set is not very big we decided to put the minimum support threshold for the Apriori algorithm at 0.05 to prevent getting results that could be coincidental. We also decided to set the confidence factor pretty high at 0.9 since we are looking for strong rules.
 
 
-```{r seconddata}
+```{r seconddata, results="hide",warning=FALSE}
 
 freq.rules <- apriori(chronic_freq, parameter=list(support = 0.1, 
               confidence = 0.9, minlen=2, maxlen=3))
@@ -131,17 +133,19 @@ cluster.rules <- apriori(chronic_cluster, parameter=list(support = 0.1,
 ```
 
 
-```{r summary}
+```{r summary, warning=FALSE}
 inspect(head(freq.rules, n = 10, by ="lift"))
 inspect(head(interval.rules, n = 10, by ="lift"))
 inspect(head(cluster.rules, n = 10, by = "lift"))
+
 ```
-```{r}
+```{r , warning = FALSE}
 
 plot(freq.rules)
 plot(freq.rules, method = "two-key plot")
 plot(interval.rules)
 plot(cluster.rules)
+
 ```
 
 
@@ -155,6 +159,7 @@ sum.cluster <- summary(cluster.rules)
 sum.freq@quality
 sum.interval@quality
 sum.cluster@quality
+
 ```
 
 
@@ -166,6 +171,9 @@ Resulting rules: Summary (number of rules, general description), and a selection
 you would show to a client.
 
 Recommendations: What should the client do because of the rules discovered.
+
+In our calculations we got rules with very high confidence and pretty low support this means that the rule occurs infrequently while indicating that the rule has a high predictive power, which in our case is important. ...
+
 
 
 ```{r result}
