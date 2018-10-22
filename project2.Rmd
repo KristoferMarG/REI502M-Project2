@@ -53,38 +53,25 @@ R kóði - Data read, discretization, remove some attributes?
 ```{r data}
 
 
-
+# read in .arff file
 chronic <- read.arff("chronic_kidney_disease_full.arff")
 
 
-
-table(discretize(chronic$age, breaks = 10))
-
-# equal freq
+# dicretize using equal freq 
 chronicDisc <- discretizeDF(chronic, methods = list(
-  age = list(method = "frequency", breaks = 10 )
-  bp  = list(method = "frequency", breaks = 10)
+  age = list(method = "frequency", breaks = 10 ),
+  bp  = list(method = "frequency", breaks = 3 ),
+  bgr = list(method = "frequency", breaks = 10 ),
+  bu  = list(method = "frequency", breaks = 10 ),
+  sc  = list(method = "frequency", breaks = 10 ),
+  sod = list(method = "frequency", breaks = 10 ),
+  pot = list(method = "frequency", breaks = 10 ),
+  hemo= list(method = "frequency", breaks = 10 ),
+  pcv = list(method = "frequency", breaks = 10 ),
+  wbcc= list(method = "frequency", breaks = 10 ),
+  rbcc= list(method = "frequency", breaks = 10 )
+  
   ))
-
-#equal interval
-#table(discretize(x, method = "interval", breaks = 3))
-
-
-
-
-#tData <- as (chronic, "transactions")
-#size(head(tData))
-#LIST(head(tData, 3))
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -104,7 +91,6 @@ rules <- apriori(tData, parameter=list(support = 0.1, confidence = 0.8, minlen=3
                  appearance = list(rhs=c("class=ckd")))  
 
 rules.sorted <- sort(rules, by="lift")
-
 inspect(rules.sorted)
 
 
