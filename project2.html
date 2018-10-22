@@ -122,76 +122,67 @@ $(document).ready(function () {
 </div>
 
 
-<div id="lesa-inn-gogn" class="section level3">
-<h3>Lesa inn gögn</h3>
-<pre class="r"><code>bank.full &lt;- read.csv(&quot;bank-full.csv&quot;, sep=&quot;;&quot;)
-str(bank.full)</code></pre>
-<pre><code>## 'data.frame':    45211 obs. of  17 variables:
-##  $ age      : int  58 44 33 47 33 35 28 42 58 43 ...
-##  $ job      : Factor w/ 12 levels &quot;admin.&quot;,&quot;blue-collar&quot;,..: 5 10 3 2 12 5 5 3 6 10 ...
-##  $ marital  : Factor w/ 3 levels &quot;divorced&quot;,&quot;married&quot;,..: 2 3 2 2 3 2 3 1 2 3 ...
-##  $ education: Factor w/ 4 levels &quot;primary&quot;,&quot;secondary&quot;,..: 3 2 2 4 4 3 3 3 1 2 ...
-##  $ default  : Factor w/ 2 levels &quot;no&quot;,&quot;yes&quot;: 1 1 1 1 1 1 1 2 1 1 ...
-##  $ balance  : int  2143 29 2 1506 1 231 447 2 121 593 ...
-##  $ housing  : Factor w/ 2 levels &quot;no&quot;,&quot;yes&quot;: 2 2 2 2 1 2 2 2 2 2 ...
-##  $ loan     : Factor w/ 2 levels &quot;no&quot;,&quot;yes&quot;: 1 1 2 1 1 1 2 1 1 1 ...
-##  $ contact  : Factor w/ 3 levels &quot;cellular&quot;,&quot;telephone&quot;,..: 3 3 3 3 3 3 3 3 3 3 ...
-##  $ day      : int  5 5 5 5 5 5 5 5 5 5 ...
-##  $ month    : Factor w/ 12 levels &quot;apr&quot;,&quot;aug&quot;,&quot;dec&quot;,..: 9 9 9 9 9 9 9 9 9 9 ...
-##  $ duration : int  261 151 76 92 198 139 217 380 50 55 ...
-##  $ campaign : int  1 1 1 1 1 1 1 1 1 1 ...
-##  $ pdays    : int  -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 ...
-##  $ previous : int  0 0 0 0 0 0 0 0 0 0 ...
-##  $ poutcome : Factor w/ 4 levels &quot;failure&quot;,&quot;other&quot;,..: 4 4 4 4 4 4 4 4 4 4 ...
-##  $ y        : Factor w/ 2 levels &quot;no&quot;,&quot;yes&quot;: 1 1 1 1 1 1 1 1 1 1 ...</code></pre>
-<pre class="r"><code>bank.full$age &lt;- cut(bank.full$age, 5)
-bank.full$balance &lt;- cut(bank.full$balance, 5)
-bank.full$day &lt;- cut(bank.full$day, 31)
-bank.full$duration &lt;- cut(bank.full$duration, 5)
-bank.full$campaign &lt;- cut(bank.full$campaign, 3)
-bank.full$pdays &lt;- cut(bank.full$pdays, 5)
-bank.full$previous &lt;- cut(bank.full$previous, 3)
-
-tData &lt;- as (bank.full, &quot;transactions&quot;)
-#size(head(tData))
-
-LIST(head(tData, 3))</code></pre>
-<pre><code>## $`1`
-##  [1] &quot;age=(48.8,64.2]&quot;             &quot;job=management&quot;             
-##  [3] &quot;marital=married&quot;             &quot;education=tertiary&quot;         
-##  [5] &quot;default=no&quot;                  &quot;balance=(-8.13e+03,1.4e+04]&quot;
-##  [7] &quot;housing=yes&quot;                 &quot;loan=no&quot;                    
-##  [9] &quot;contact=unknown&quot;             &quot;day=(4.87,5.84]&quot;            
-## [11] &quot;month=may&quot;                   &quot;duration=(-4.92,984]&quot;       
-## [13] &quot;campaign=(0.938,21.7]&quot;       &quot;pdays=(-1.87,173]&quot;          
-## [15] &quot;previous=(-0.275,91.7]&quot;      &quot;poutcome=unknown&quot;           
-## [17] &quot;y=no&quot;                       
-## 
-## $`2`
-##  [1] &quot;age=(33.4,48.8]&quot;             &quot;job=technician&quot;             
-##  [3] &quot;marital=single&quot;              &quot;education=secondary&quot;        
-##  [5] &quot;default=no&quot;                  &quot;balance=(-8.13e+03,1.4e+04]&quot;
-##  [7] &quot;housing=yes&quot;                 &quot;loan=no&quot;                    
-##  [9] &quot;contact=unknown&quot;             &quot;day=(4.87,5.84]&quot;            
-## [11] &quot;month=may&quot;                   &quot;duration=(-4.92,984]&quot;       
-## [13] &quot;campaign=(0.938,21.7]&quot;       &quot;pdays=(-1.87,173]&quot;          
-## [15] &quot;previous=(-0.275,91.7]&quot;      &quot;poutcome=unknown&quot;           
-## [17] &quot;y=no&quot;                       
-## 
-## $`3`
-##  [1] &quot;age=(17.9,33.4]&quot;             &quot;job=entrepreneur&quot;           
-##  [3] &quot;marital=married&quot;             &quot;education=secondary&quot;        
-##  [5] &quot;default=no&quot;                  &quot;balance=(-8.13e+03,1.4e+04]&quot;
-##  [7] &quot;housing=yes&quot;                 &quot;loan=yes&quot;                   
-##  [9] &quot;contact=unknown&quot;             &quot;day=(4.87,5.84]&quot;            
-## [11] &quot;month=may&quot;                   &quot;duration=(-4.92,984]&quot;       
-## [13] &quot;campaign=(0.938,21.7]&quot;       &quot;pdays=(-1.87,173]&quot;          
-## [15] &quot;previous=(-0.275,91.7]&quot;      &quot;poutcome=unknown&quot;           
-## [17] &quot;y=no&quot;</code></pre>
+<div id="objectives" class="section level3">
+<h3>1. Objectives</h3>
+<p>The data set we are working with predicts if a patient is likely or not to have a chronic kidney disease based on various attributes that are all based on different tests. The objective of the project is to use association rule mining to identify patterns between different attributes of the data set. If the patterns we find are good enough it might be possible for doctors to skip certain tests on patients which could then hopefully save some time in diagnosing different symptoms.</p>
 </div>
-<div id="including-plots" class="section level3">
-<h3>Including Plots</h3>
-<p>Note that the <code>echo = FALSE</code> parameter was added to the code chunk to prevent printing of the R code that generated the plot.</p>
+<div id="data-set-description" class="section level3">
+<h3>2. Data set description</h3>
+<p>The data set has 400 different instances that each contain 24 different attributes and one class attribute that tells if the patient has the disease or not. The attributes are:</p>
+<p>1.Age(numerical) ———————- Age in years. 2.Blood Pressure(numerical) ———– bp in mm/Hg. 3.Specific Gravity(nominal) ———– sg - (1.005,1.010,1.015,1.020,1.025). 4.Albumin(nominal) ——————– al - (0,1,2,3,4,5). 5.Sugar(nominal) ———————- su - (0,1,2,3,4,5). 6.Red Blood Cells(nominal) ———— rbc - (normal,abnormal). 7.Pus Cell (nominal) —————— pc - (normal,abnormal). 8.Pus Cell clumps(nominal) ———— pcc - (present,notpresent). 9.Bacteria(nominal) ——————- ba - (present,notpresent). 10.Blood Glucose Random(numerical) — bgr in mgs/dl. 11.Blood Urea(numerical) ————- bu in mgs/dl. 12.Serum Creatinine(numerical) ——- sc in mgs/dl. 13.Sodium(numerical) —————— sod in mEq/L. 14.Potassium(numerical) ————— pot in mEq/L. 15.Hemoglobin(numerical) ————– hemo in gms. 16.Packed Cell Volume(numerical). —– pcv. 17.White Blood Cell Count(numerical) – wc in cells/cumm. 18.Red Blood Cell Count(numerical) — rc in millions/cmm. 19.Hypertension(nominal) ————- htn - (yes,no). 20.Diabetes Mellitus(nominal) ——— dm - (yes,no). 21.Coronary Artery Disease(nominal) — cad - (yes,no). 22.Appetite(nominal) —————– appet - (good,poor). 23.Pedal Edema(nominal) ————— pe - (yes,no).<br />
+24.Anemia(nominal) ——————– ane - (yes,no). 25.Class (nominal) ——————- class - (ckd,notckd).</p>
+<p>Describe preprocessing (choices in discretization + decisions to ignore attributes)</p>
+<p>R kóði - Data read, discretization, remove some attributes?</p>
+<pre class="r"><code>chronic &lt;- read.arff(&quot;chronic_kidney_disease_full.arff&quot;)
+
+
+#range 2-90
+chronic$age &lt;- cut(chronic$age, c(2,10,20,30,40,50,60,70,80,90) )
+levels(chronic$age) &lt;- c('2-10','10-20','20-30','30-40','40-50',
+                         '50-60','60-70','70-80','80-90','90')  
+
+#range 50-180
+chronic$bp &lt;- cut(chronic$bp, 8 )
+levels(chronic$bp) &lt;- c('50-80','80-90','90-110','110-130','130-150','150-160','160-170','170-180')  
+#range 22-490
+chronic$bgr &lt;- cut(chronic$bgr, 50 )
+#range 1.5-391
+chronic$bu &lt;- cut(chronic$bu, 20 )
+#range 0.4-76
+chronic$sc &lt;- cut(chronic$sc, 20 )
+#range 4.5-163
+chronic$sod &lt;- cut(chronic$sod, 50 )
+#range 2.5-47
+chronic$pot &lt;- cut(chronic$pot, 50 )
+#range 3.1-17.8
+chronic$hemo &lt;- cut(chronic$hemo, 20 )
+#range 9-54
+chronic$pcv &lt;- cut(chronic$pcv, 20 )
+#range 2200-26400 (wbcc í raun er um 10-15)
+chronic$wbcc &lt;- cut(chronic$wbcc, 10 )
+levels(chronic$wbcc) &lt;- c('2200-5000','5000-7000','7000-8000','8000-9000','9000-10000',
+                          '10000-15000','15000-17000','17000-19000','19000-21000','21000+')  
+#range 2.1-8
+chronic$rbcc &lt;- cut(chronic$rbcc, 20 )
+
+
+
+tData &lt;- as (chronic, &quot;transactions&quot;)
+#size(head(tData))
+#LIST(head(tData, 3))</code></pre>
+</div>
+<div id="rule-mining-process" class="section level3">
+<h3>3. Rule mining process</h3>
+<p>Using apriori make lists of rules - Most support, Most confidence, Lift ….. Try out different parameters - different length for rules, different thresholds … more?</p>
+<pre class="r"><code>#rules &lt;- apriori(tData, parameter=list(support = 0.005, confidence = 0.8, minlen=2), 
+                 #appearance = list(rhs=c(&quot;class=ckd&quot;)))  
+
+#inspect(rules)</code></pre>
+</div>
+<div id="results-recommendations" class="section level3">
+<h3>4. Results + Recommendations</h3>
+<p>Resulting rules: Summary (number of rules, general description), and a selection of those you would show to a client.</p>
+<p>Recommendations: What should the client do because of the rules discovered.</p>
 </div>
 
 
