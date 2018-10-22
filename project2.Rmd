@@ -15,55 +15,54 @@ library(RWeka)
 
 ### 1. Objectives
 
-The data set we are working with predicts if a patient is likely or not to have a chronic kidney disease based on various attributes that are all based on different tests. The objective of the project is to use association rule mining to identify patterns between different attributes of the data set. If the patterns we find are good enough it might be possible for doctors to skip certain tests on patients which could then hopefully save some time in diagnosing different symptoms. 
+The data set we are working with predicts if a patient is likely or not to have a chronic kidney disease based on various attributes that are all based on different tests. The objective of the project is to use association rule mining to identify patterns between different attributes of the data set. If the patterns we find are good enough it might be possible for doctors to skip certain tests on patients which could then hopefully save some time in diagnosing different symptoms.
 
 ### 2. Data set description
 
 The data set has 400 different instances that each contain 24 different attributes and one class attribute that tells if the patient has the disease or not. The attributes are:
 
-1.Age(numerical) ---------------------- Age in years. 
-2.Blood Pressure(numerical) ----------- bp in mm/Hg.
-3.Specific Gravity(nominal) ----------- sg - (1.005,1.010,1.015,1.020,1.025).
-4.Albumin(nominal) -------------------- al - (0,1,2,3,4,5).
-5.Sugar(nominal) ---------------------- su - (0,1,2,3,4,5).
-6.Red Blood Cells(nominal) ------------ rbc - (normal,abnormal). 
-7.Pus Cell (nominal) ------------------ pc - (normal,abnormal).
-8.Pus Cell clumps(nominal) ------------ pcc - (present,notpresent). 
-9.Bacteria(nominal) ------------------- ba - (present,notpresent). 
-10.Blood Glucose Random(numerical)	--- bgr in mgs/dl. 
-11.Blood Urea(numerical)	------------- bu in mgs/dl. 
-12.Serum Creatinine(numerical)	------- sc in mgs/dl. 
-13.Sodium(numerical) ------------------ sod in mEq/L. 
-14.Potassium(numerical)	--------------- pot in mEq/L. 
-15.Hemoglobin(numerical) -------------- hemo in gms. 
-16.Packed Cell Volume(numerical). ----- pcv. 
-17.White Blood Cell Count(numerical) -- wc in cells/cumm. 
-18.Red Blood Cell Count(numerical)	--- rc in millions/cmm. 
-19.Hypertension(nominal)	------------- htn - (yes,no). 
-20.Diabetes Mellitus(nominal)	--------- dm - (yes,no). 
-21.Coronary Artery Disease(nominal) --- cad - (yes,no). 
-22.Appetite(nominal)	----------------- appet - (good,poor). 
-23.Pedal Edema(nominal) --------------- pe - (yes,no).	
-24.Anemia(nominal) -------------------- ane - (yes,no). 
-25.Class (nominal)	------------------- class - (ckd,notckd).
+| Nr. | Name | Type | Description |
+| --- | ---- | ---- | ----------- |
+| 1. | Age | numerical | Age in years. |
+| 2. | Blood Pressure | numerical | bp in mm/Hg. |
+| 3. | Specific Gravity | nominal | sg - (1.005,1.010,1.015,1.020,1.025). |
+| 4. | Albumin | nominal | al - (0,1,2,3,4,5). |
+| 5. | Sugar | nominal | su - (0,1,2,3,4,5). |
+| 6. | Red Blood Cells | nominal | rbc - (normal,abnormal)|
+| 7. | Pus Cell | nominal | pc - (normal,abnormal) |
+| 8. | Pus Cell clumps | nominal | pcc - (present,notpresent)|
+| 9. | Bacteria | nominal | ba - (present,notpresent)|
+| 10. | Blood Glucose Random | numerical | bgr in mgs/dl| 
+| 11. | Blood Urea | numerical | bu in mgs/dl| 
+| 12. | Serum Creatinine | numerical | sc in mgs/dl| 
+| 13. | Sodium | numerical | sod in mEq/L| 
+| 14. | Potassium | numerical | pot in mEq/L| 
+| 15. | Hemoglobin | numerical | hemo in gms| 
+| 16. | Packed Cell Volume | numerical | pcv| 
+| 17. | White Blood Cell Count | numerical | wc in cells/cumm| 
+| 18. | Red Blood Cell Count | numerical | rc in millions/cmm| 
+| 19. | Hypertension | nominal | htn - (yes,no)| 
+| 20. | Diabetes Mellitus | nominal | dm - (yes,no)| 
+| 21. | Coronary Artery Disease | nominal | cad - (yes,no)| 
+| 22. | Appetite | nominal | appet - (good,poor)| 
+| 23. | Pedal Edema | nominal | pe - (yes,no)|	
+| 24. | Anemia | nominal | ane - (yes,no)| 
+| 25. | Class | nominal | class - (ckd,notckd)|
 
-Describe preprocessing (choices in discretization + decisions to ignore attributes)
+#Describe preprocessing (choices in discretization + decisions to ignore attributes)
 
+We decided to try 3 different ways of dicretizising our numerical variables. We used equal frequency, equal intervals an k-means clustering
 
-
-R kóði - Data read, discretization, remove some attributes?
 
 ```{r data}
-
-
 # read in .arff file
 chronic <- read.arff("chronic_kidney_disease_full.arff")
 
 
-# dicretize using equal freq 
+# dicretize using equal frequency
 chronic_freq <- discretizeDF(chronic, methods = list(
   age = list(method = "frequency", breaks = 10 ),
-  bp  = list(method = "frequency", breaks = 3  ),
+  bp  = list(method = "frequency", breaks = 3 ),
   bgr = list(method = "frequency", breaks = 10 ),
   bu  = list(method = "frequency", breaks = 10 ),
   sc  = list(method = "frequency", breaks = 10 ),
@@ -73,7 +72,6 @@ chronic_freq <- discretizeDF(chronic, methods = list(
   pcv = list(method = "frequency", breaks = 10 ),
   wbcc= list(method = "frequency", breaks = 10 ),
   rbcc= list(method = "frequency", breaks = 10 )
-  
   ))
 
 # dicretize using equal freq 
@@ -89,11 +87,26 @@ chronic_interval <- discretizeDF(chronic, methods = list(
   pcv = list(method = "interval", breaks = 10 ),
   wbcc= list(method = "interval", breaks = 10 ),
   rbcc= list(method = "interval", breaks = 10 )
-  
   ))
 
+# dicretize using k-means clustering
+chronic_cluster <- discretizeDF(chronic, methods = list(
+  age = list(method = "cluster", breaks = 10 ),
+  bp  = list(method = "cluster", breaks = 10 ),
+  bgr = list(method = "cluster", breaks = 10 ),
+  bu  = list(method = "cluster", breaks = 10 ),
+  sc  = list(method = "cluster", breaks = 10 ),
+  sod = list(method = "cluster", breaks = 10 ),
+  pot = list(method = "cluster", breaks = 10 ),
+  hemo= list(method = "cluster", breaks = 10 ),
+  pcv = list(method = "cluster", breaks = 10 ),
+  wbcc= list(method = "cluster", breaks = 10 ),
+  rbcc= list(method = "cluster", breaks = 10 )
+  ))
 
-
+chronic_freq$class <- NULL
+chronic_interval$class <- NULL
+chronic_cluster$class <- NULL
 
 ```
 
@@ -102,28 +115,46 @@ chronic_interval <- discretizeDF(chronic, methods = list(
 Using apriori make lists of rules - Most support, Most confidence, Lift .....
 Try out different parameters - different length for rules, different thresholds ... more?
 
+Since the data set is not very big we decided to put the minimum support threshold at 0.05 to prevent getting results that could be coincidental. We also decided to set the confidence factor pretty high at 0.9 since we are looking for strong rules.
+
 
 ```{r seconddata}
 
 freq.rules <- apriori(chronic_freq, parameter=list(support = 0.1, 
-              confidence = 0.8, minlen=2),appearance = list(rhs=c("class=ckd")))  
+              confidence = 0.9, minlen=2, maxlen=3))
 
 interval.rules <- apriori(chronic_interval, parameter=list(support = 0.1,
-                  confidence = 0.8, minlen=2), appearance = list(rhs=c("class=ckd")))  
+                  confidence = 0.9, minlen=2, maxlen=3) )
 
-
-plot(freq.rules)
-plot(interval.rules)
+cluster.rules <- apriori(chronic_cluster, parameter=list(support = 0.1,
+                  confidence = 0.9, minlen=2, maxlen=3))
 ```
 
+
 ```{r summary}
+inspect(head(freq.rules, n = 10, by ="lift"))
+inspect(head(interval.rules, n = 10, by ="lift"))
+inspect(head(cluster.rules, n = 10, by = "lift"))
+```
+```{r}
+
+plot(freq.rules)
+plot(freq.rules, method = "two-key plot")
+plot(interval.rules)
+plot(cluster.rules)
+```
+
+
+
+```{r summary1}
 
 sum.freq <- summary(freq.rules)
 sum.interval <- summary(interval.rules)
+sum.cluster <- summary(cluster.rules)
 
 sum.freq@quality
-
 sum.interval@quality
+sum.cluster@quality
 ```
 
 
