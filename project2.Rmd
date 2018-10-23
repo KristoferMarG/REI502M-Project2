@@ -1,5 +1,5 @@
 ---
-title: "Project 2"
+title: "Project 2 - Association Rules"
 author: 
   - Jón Þorsteinsson - jth56@hi.is
   - Kristófer Már Gíslason - kmg14@hi.is
@@ -124,13 +124,11 @@ sum.interval@lengths
 plot(freq.rules)
 # Scatter plot for the equal interval rule set
 plot(interval.rules)
-
-
 ```
 
 The mean for confidence is pretty similar in both cases the interval discretization has a little bit higher average lift. The biggest difference is between support but that is probably because the rule set which we get with the interval discretization is much bigger than the other one and therefor probably has many low supported rules. Ploting the results we could see that the equal frequency discretization gave us fewer rules and fewer rules with high lift and the equal interval discretization gave us way to many rules but more rules with higher lift.
 
-Looking at our data we saw that some of our attributes had a wide range of values but the most common values were all at the same small interval. For that reason we decided to use a change our discretization and use equal frequency for those attributes and equal intervals for the other ones. With that approach we got higher average confidence and lift and a more manageble rule set than by using only equal intervals. Looking at the plot we can also see that we get rid of alot uninteresting rules from our equal interval rule set but get more rules with high lift than in our equal frequency rule set.
+Looking at our data we saw that some of our attributes had a wide range of values but the most common values were all at the same small interval. For that reason we decided to use a change our discretization and use equal frequency for those attributes and equal intervals for the other ones. With that approach we got higher average confidence and lift and a more manageble rule set than by using only equal intervals. Looking at the plot we can also see that we get rid of alot uninteresting rules from our equal interval rule set but get more rules with high lift than in our equal frequency rule set. It is also interesting that we have don't seem to have any rules between about 0.25 to 0.32 in support and only a few over 0.32 support with high lift.
 
 ```{r results="hide",warning=FALSE}
 # Discretizising with a mixed method
@@ -154,44 +152,72 @@ chronicDisc$class <- NULL
 chronic.rules <- apriori(chronicDisc, parameter=list(support = 0.1, 
               confidence = 0.9, minlen=2, maxlen=4))
 ```
+
 ```{r}
-# Information and plot for our new rule set.
 sum.chronic <- summary(chronic.rules)
 # Statistics for the new rule set
 sum.chronic@quality
 # Size of the new rule set
 sum.chronic@lengths
-
+```
+```{r}
+# Scatter plot for our new rule set.
 plot(chronic.rules)
 ```
 
+
 ```{r summary, warning=FALSE}
-inspect(head(chronic.rules, n = 15, by ="lift"))
+# Getting the 20 rules with the highest lift
+inspect(head(chronic.rules, n = 20, by ="lift"))
+```
+Looking at the highest ranked rules by lift we can see that they are all share 2 to 3 items and they all have {al=0} on the right hand side and most of them have {rbc=normal} and {pcv=[45,49.5]} on the left hand side. This is not very usefull to us but it is likely that we could get equally as good shorter rules by decreasing the maximum length of our rules. By looking at a two-key plot for our rules we can also see that the rules of length 4 seem to be very similar to the rules of length 3.
+
+```{r warning=FALSE}
+plot(chronic.rules, method = "two-key plot")
 ```
 
+
+
+```{r results="hide",warning=FALSE}
+# Running the apriori algorithm again with maxlen=3
+chronic.rules <- apriori(chronicDisc, parameter=list(support = 0.1, 
+              confidence = 0.9, minlen=2, maxlen=3))
+```
 
 
 ```{r}
-interval.rules <- apriori(chronic_interval, parameter=list(support = 0.1,
-                  confidence = 0.95, minlen=2, maxlen=2))
+# Gettting the best lift rules with maxlen=3
+inspect(head(chronic.rules, n = 20, by ="lift"))
+```
+The resulting rules are shorter which is better but they still contain mostly the same items just like the first rule set. Since they all have low support and most of our high lift rules have low support we assume that these attributes have something to do with similar symptoms that are also not that common and might not be that interesting. We decide to increase the support threshold of our algorithm to 0.3 because we suspect that the rules over that are over that threshold could be more interesting.
 
-summary(interval.rules)
+```{r results="hide",warning=FALSE}
+# Running the apriori algorithm again with maxlen=3 and support=0.3
+chronic.rules <- apriori(chronicDisc, parameter=list(support = 0.3, 
+              confidence = 0.9, minlen=2, maxlen=3))
+```
+```{r}
+# Gettting the best lift rules with maxlen=3 and support=0.3
+inspect(head(chronic.rules, n = 20, by ="lift"))
+```
+We get rules with a little bit lower lift and confidence but both factors are still pretty high and the support is much higher. Most of the rules contain the samt parameters which are also the same ones we got in most of the rules when running the algorithm with a lower support threshold. The same is true if we look at more rules so we decided not to show more than 20.
 
-inspect(head(interval.rules, n = 30, by ="lift"))
 
+```{r}
+sum.chronic <- summary(chronic.rules)
+# Statistics for the new rule set
+sum.chronic@quality
+# Size of the new rule set
+sum.chronic@lengths
 ```
 
 
-### 4. Results + Recommendations
 
-Resulting rules: Summary (number of rules, general description), and a selection of those
-you would show to a client.
+### 4. Results and Recommendations
 
-Recommendations: What should the client do because of the rules discovered.
+The final rule set we got has 373 rules. The average support is 0.52, average confidence 0.95 and an average lift of 1.13. The best rules we got are all related to albumin levels, pus cell status, red blood cell status and hypertension which suggests that there could be a strong connection between these factors. With our knowledge of the subject it is hard for us to say if these results would be interesting or not and if some rules are more interesting than others without basing our opinion only on the numbers. For that reason we do not want to say if any rules are more interesting than others and would recommend that someone more knowledgeable about the subject would make that decision.
 
-[4]   {al=0,rbc=normal}              => {pc=normal}      0.3525  1.0000000  1.544402 141
 
-In our calculations we got rules with very high confidence and pretty low support this means that the rule occurs infrequently while indicating that the rule has a high predictive power, which in our case is important. ...
 
 
 
