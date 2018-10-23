@@ -16,7 +16,7 @@ library(RWeka)
 
 ### 1. Objectives
 
-The data set we are working with predicts if a patient is likely or not to have a chronic kidney disease based on various attributes that are all based on different medical tests. The objective of the project is to use association rule mining to identify patterns between different attributes of the data set. If the patterns we find are good enough it might be possible for doctors to identify certain patterns between symptoms and maybe skip certain tests on patients which could then hopefully help them when deciding on which tests could be more usefull than others when diagnosing a patient.
+The data set we are working with predicts if a patient is likely or not to have a chronic kidney disease based on various attributes that are all based on different medical tests. The objective of the project is to use association rule mining to identify patterns between different attributes of the data set. If the patterns we find are good enough it might be possible for doctors to identify certain patterns between symptoms and maybe skip certain tests on patients which could then hopefully help them when deciding on which tests could be more usefull than others when diagnosing a patient. The rule set could also be used to fill in some missing data in the data set which could then be used to get a better classification for the data.
 
 ### 2. Data set description
 
@@ -53,13 +53,12 @@ The data set has 400 different instances that each contain 24 different attribut
 
 #Preprocessing
 
-We decided to try 3 different ways of discretizising our numerical variables. We used equal frequency, equal intervals an k-means clustering. In our opinion it was not necessary to remove / ignore any attributes because each of the attributes was a specific medical test and therefore had some valuable information. We tried a few different values for the number of bins in the discretization but it didn't seem to change that much for our data so we decided on having 10 bins.
+We decided to try 2 different ways of discretizising our numerical variables using equal frequency and equal intervals. In our opinion it was not necessary to remove / ignore any attributes because each of the attributes was a specific medical test and therefore might have some valuable information. After running the first tests we saw that the class atttribute was negative on the right hand side of all of our highest ranked rules and since those results were not very interesting to us in this assignment we decided to remove it.  We tried a few different values for the number of bins in the discretization but it didn't seem to change that much for our data so we decided on having 10 bins.
 
 
 ```{r data, tidy = TRUE}
 # read in .arff file
 chronic <- read.arff("chronic_kidney_disease_full.arff")
-
 
 # dicretize using equal frequency
 chronic_freq <- discretizeDF(chronic, methods = list(
@@ -91,73 +90,59 @@ chronic_interval <- discretizeDF(chronic, methods = list(
   rbcc= list(method = "interval", breaks = 10 )
   ))
 
-# dicretize using k-means clustering
-chronic_cluster <- discretizeDF(chronic, methods = list(
-  age = list(method = "cluster", breaks = 10 ),
-  bp  = list(method = "cluster", breaks = 10 ),
-  bgr = list(method = "cluster", breaks = 10 ),
-  bu  = list(method = "cluster", breaks = 10 ),
-  sc  = list(method = "cluster", breaks = 10 ),
-  sod = list(method = "cluster", breaks = 10 ),
-  pot = list(method = "cluster", breaks = 10 ),
-  hemo= list(method = "cluster", breaks = 10 ),
-  pcv = list(method = "cluster", breaks = 10 ),
-  wbcc= list(method = "cluster", breaks = 10 ),
-  rbcc= list(method = "cluster", breaks = 10 )
-  ))
-
 chronic_freq$class <- NULL
 chronic_interval$class <- NULL
-chronic_cluster$class <- NULL
 ```
 
 ### 3. Rule mining process
 
-Since the data set is not very big we decided to put the minimum support threshold for the Apriori algorithm at 0.1 to prevent getting results that could very well be coincidental. We also decided to set the confidence factor pretty high at 0.97 since we are only interested in very strong rules. Since we have so many attributes with many different values we decided to limit the length of the rules to 3 to avoid getting rules that would be to complicated. We ran the apiori algorithm for the 3 differently discretizised data sets and compared the results.
+Since the data set is not very big we decided to put the minimum support threshold for the Apriori algorithm at 0.1 to prevent getting results that could very well be coincidental. We also decided to set the confidence factor pretty high at 0.9 since we are only interested in very strong rules. Since we have so many attributes with many different values we decided to limit the length of the rules to 4 to avoid getting rules that would be to complicated. We ran the apiori algorithm for the 3 differently discretizised data sets and compared the results.
 
 ```{r seconddata, results="hide",warning=FALSE}
 
 freq.rules <- apriori(chronic_freq, parameter=list(support = 0.1, 
-              confidence = 0.97, minlen=2, maxlen=3))
+              confidence = 0.9, minlen=2, maxlen=4))
 
 interval.rules <- apriori(chronic_interval, parameter=list(support = 0.1,
-                  confidence = 0.97, minlen=2, maxlen=3))
+                  confidence = 0.9, minlen=2, maxlen=4))
 
-cluster.rules <- apriori(chronic_cluster, parameter=list(support = 0.1,
-                  confidence = 0.97, minlen=2, maxlen=3))
 ```
 
 ```{r summary1}
 
 sum.freq <- summary(freq.rules)
 sum.interval <- summary(interval.rules)
-sum.cluster <- summary(cluster.rules)
 
 sum.freq@quality
 sum.freq@lengths
 sum.interval@quality
 sum.interval@lengths
-sum.cluster@quality
-sum.cluster@lengths
 
 ```
 
-The mean for confidence and lift are pretty similar in all three cases but since the rule set that we get with the equal frequency discretization has a considerably higher support and the set is much smaller we decide to use that one.
+The mean for confidence is pretty similar in both cases the interval discretization has a little bit higher average lift. The biggest difference is between support but that is probably because the rule set which we get with the interval discretization is much bigger than the other one and therefor probably has many low supported rules.
 
 
 ```{r, warning = FALSE}
 plot(freq.rules)
-#plot(freq.rules, method = "two-key plot")
+plot(interval.rules)
 ```
 
 
 ```{r summary, warning=FALSE}
-inspect(head(freq.rules, n = 200, by ="lift"))
-#inspect(head(freq.rules, n = 30, by ="confidence"))
-#inspect(head(freq.rules, n = 30, by ="support"))
+inspect(head(freq.rules, n = 30, by ="lift"))
 
-inspect(head(interval.rules, n = 100, by ="lift"))
-#inspect(head(cluster.rules, n = 30, by = "lift"))
+inspect(head(interval.rules, n = 30, by ="lift"))
+
+
+```
+```{r}
+interval.rules <- apriori(chronic_interval, parameter=list(support = 0.1,
+                  confidence = 0.95, minlen=2, maxlen=2))
+
+summary(interval.rules)
+
+inspect(head(interval.rules, n = 30, by ="lift"))
 
 ```
 
@@ -168,6 +153,8 @@ Resulting rules: Summary (number of rules, general description), and a selection
 you would show to a client.
 
 Recommendations: What should the client do because of the rules discovered.
+
+[4]   {al=0,rbc=normal}              => {pc=normal}      0.3525  1.0000000  1.544402 141
 
 In our calculations we got rules with very high confidence and pretty low support this means that the rule occurs infrequently while indicating that the rule has a high predictive power, which in our case is important. ...
 
