@@ -3,8 +3,12 @@ title: "Project 2 - Association Rules"
 author: 
   - Jón Þorsteinsson - jth56@hi.is
   - Kristófer Már Gíslason - kmg14@hi.is
-output: html_document
+output: 
+  html_document:
+    css: styles.css
 ---
+
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -12,11 +16,12 @@ library(arules)
 library(arulesViz)
 library(funModeling)
 library(RWeka)
+
 ```
 
 ### 1. Objectives
-
-The data set we are working with predicts if a patient is likely or not to have a chronic kidney disease based on various attributes that are all based on different medical tests. The objective of the project is to use association rule mining to identify patterns between different attributes of the data set. If the patterns we find are good enough it might be possible for doctors to identify certain patterns between symptoms and maybe skip certain tests on patients which could then hopefully help them when deciding on which tests could be more usefull than others when diagnosing a patient. The rule set could also be used to fill in some missing data in the data set which could then be used to get a better classification for the data.
+The data set we are working with predicts if a patient is likely or not to have a chronic kidney disease based on various attributes that are all based on different medical tests. The objective of the project is to use association rule mining to identify patterns between different attributes of the data set. If the patterns we find are good enough it might be possible for doctors to identify certain patterns between symptoms and maybe skip certain tests on patients which could then hopefully help them when deciding on which tests could be more usefull than others when diagnosing a patient. 
+The rule set could also be used to fill in some missing data in the data set which could then be used to get a better classification for the data.
 
 ### 2. Data set description
 
@@ -60,7 +65,7 @@ We decided to try 2 different ways of discretizising our numerical variables usi
 # read in .arff file
 chronic <- read.arff("chronic_kidney_disease_full.arff")
 
-# dicretize using equal frequency
+# discretize using equal frequency
 chronic_freq <- discretizeDF(chronic, methods = list(
   age = list(method = "frequency", breaks = 10 ),
   bp  = list(method = "frequency", breaks = 3 ),
@@ -75,7 +80,7 @@ chronic_freq <- discretizeDF(chronic, methods = list(
   rbcc= list(method = "frequency", breaks = 10 )
   ))
 
-# dicretize using equal interval
+# discretize using equal interval
 chronic_interval <- discretizeDF(chronic, methods = list(
   age = list(method = "interval", breaks = 10 ),
   bp  = list(method = "interval", breaks = 10 ),
@@ -111,6 +116,7 @@ interval.rules <- apriori(chronic_interval, parameter=list(support = 0.1,
 ```{r summary1}
 sum.freq <- summary(freq.rules)
 sum.interval <- summary(interval.rules)
+
 # Information about the equal frequency rule set
 sum.freq@quality
 # Size of the equal frequancy rule set
@@ -126,9 +132,9 @@ plot(freq.rules)
 plot(interval.rules)
 ```
 
-The mean for confidence is pretty similar in both cases the interval discretization has a little bit higher average lift. The biggest difference is between support but that is probably because the rule set which we get with the interval discretization is much bigger than the other one and therefor probably has many low supported rules. Ploting the results we could see that the equal frequency discretization gave us fewer rules and fewer rules with high lift and the equal interval discretization gave us way to many rules but more rules with higher lift.
+The mean for confidence is pretty similar in both cases the interval discretization has a little bit higher average lift. The biggest difference is between support but that is probably because the rule set which we get with the interval discretization is much bigger than the other one and therefore probably has many low supported rules. Ploting the results we could see that the equal frequency discretization gave us fewer rules and fewer rules with high lift however the equal interval discretization gave us way too many rules but more rules with higher lift.
 
-Looking at our data we saw that some of our attributes had a wide range of values but the most common values were all at the same small interval. For that reason we decided to use a change our discretization and use equal frequency for those attributes and equal intervals for the other ones. With that approach we got higher average confidence and lift and a more manageble rule set than by using only equal intervals. Looking at the plot we can also see that we get rid of alot uninteresting rules from our equal interval rule set but get more rules with high lift than in our equal frequency rule set. It is also interesting that we have don't seem to have any rules between about 0.25 to 0.32 in support and only a few over 0.32 support with high lift.
+Looking at our data we saw that some of our attributes had a wide range of values but the most common values were all at the same small interval. For that reason we decided to use a change our discretization and use equal frequency for those attributes and equal intervals for the other ones. With that approach we got higher average confidence and lift and a more manageble rule set than by using only equal intervals. Looking at the plot we can also see that we get rid of alot of uninteresting rules from our equal interval rule set but get more rules with high lift than in our equal frequency rule set. It is also interesting that we have don't seem to have any rules between about 0.25 to 0.32 in support and only a few over 0.32 support with high lift.
 
 ```{r results="hide",warning=FALSE}
 # Discretizising with a mixed method
@@ -153,7 +159,7 @@ chronic.rules <- apriori(chronicDisc, parameter=list(support = 0.1,
               confidence = 0.9, minlen=2, maxlen=4))
 ```
 
-```{r}
+```{r, warning = FALSE}
 sum.chronic <- summary(chronic.rules)
 # Statistics for the new rule set
 sum.chronic@quality
@@ -170,9 +176,11 @@ plot(chronic.rules)
 # Getting the 20 rules with the highest lift
 inspect(head(chronic.rules, n = 20, by ="lift"))
 ```
-Looking at the highest ranked rules by lift we can see that they are all share 2 to 3 items and they all have {al=0} on the right hand side and most of them have {rbc=normal} and {pcv=[45,49.5]} on the left hand side. This is not very usefull to us but it is likely that we could get equally as good shorter rules by decreasing the maximum length of our rules. By looking at a two-key plot for our rules we can also see that the rules of length 4 seem to be very similar to the rules of length 3.
+
+Looking at the highest ranked rules by lift we can see that they all share 2-3 items and they all have *{al=0}* on the right hand side and most of them have *{rbc=normal}* and *{pcv=[45,49.5]}* on the left hand side. This is not very usefull to us but it is likely that we could get equally as good shorter rules by decreasing the maximum length of our rules. By looking at a two-key plot for our rules we can also see that the rules of length 4 seem to be very similar to the rules of length 3.
 
 ```{r warning=FALSE}
+
 plot(chronic.rules, method = "two-key plot")
 ```
 
@@ -189,7 +197,8 @@ chronic.rules <- apriori(chronicDisc, parameter=list(support = 0.1,
 # Gettting the best lift rules with maxlen=3
 inspect(head(chronic.rules, n = 20, by ="lift"))
 ```
-The resulting rules are shorter which is better but they still contain mostly the same items just like the first rule set. Since they all have low support and most of our high lift rules have low support we assume that these attributes have something to do with similar symptoms that are also not that common and might not be that interesting. We decide to increase the support threshold of our algorithm to 0.3 because we suspect that the rules over that are over that threshold could be more interesting.
+
+The resulting rules are shorter which is better but they still contain mostly the same items just like the first rule set. Since they all have low support and most of our high lift rules have low support we assume that these attributes have something to do with similar symptoms that are also not that common and might not be that interesting. We decided to increase the support threshold of our algorithm to 0.3 because we suspect that the rules that are over that threshold could be more interesting and give us a more focused view of the data.
 
 ```{r results="hide",warning=FALSE}
 # Running the apriori algorithm again with maxlen=3 and support=0.3
@@ -200,7 +209,8 @@ chronic.rules <- apriori(chronicDisc, parameter=list(support = 0.3,
 # Gettting the best lift rules with maxlen=3 and support=0.3
 inspect(head(chronic.rules, n = 20, by ="lift"))
 ```
-We get rules with a little bit lower lift and confidence but both factors are still pretty high and the support is much higher. Most of the rules contain the samt parameters which are also the same ones we got in most of the rules when running the algorithm with a lower support threshold. The same is true if we look at more rules so we decided not to show more than 20.
+
+Now we get rules with a little bit lower lift and confidence but both factors are still pretty high and the support is much higher. Most of the rules contain the same parameters which are also the same ones as we got in most of the rules when running the algorithm with a lower support threshold. The same is true if we look at more rules so we decided not to show more than 20 of them.
 
 
 ```{r}
@@ -215,7 +225,7 @@ sum.chronic@lengths
 
 ### 4. Results and Recommendations
 
-The final rule set we got has 373 rules. The average support is 0.52, average confidence 0.95 and an average lift of 1.13. The best rules we got are all related to albumin levels, pus cell status, red blood cell status and hypertension which suggests that there could be a strong connection between these factors. With our knowledge of the subject it is hard for us to say if these results would be interesting or not and if some rules are more interesting than others without basing our opinion only on the numbers. For that reason we do not want to say if any rules are more interesting than others and would recommend that someone more knowledgeable about the subject would make that decision.
+The final rule set we got has 373 rules. The average support is **0.52**, average confidence **0.95** and an average lift of **1.13**. The highest ranking rules we got are all related to albumin levels, pus cell status, red blood cell status and hypertension which suggests that there could be a strong connection between these factors. With our lack of knowledge in medical science it is hard for us to say if these results would be interesting or not and if some rules are more interesting than others without basing our opinion only on the numbers. For that reason we do not want to make any assumption on whether if any rules are more interesting than others and would recommend that someone more knowledgeable about the subject would make that decision.
 
 
 
