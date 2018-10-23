@@ -90,6 +90,7 @@ chronic_interval <- discretizeDF(chronic, methods = list(
   rbcc= list(method = "interval", breaks = 10 )
   ))
 
+# Removing the class attribute.
 chronic_freq$class <- NULL
 chronic_interval$class <- NULL
 ```
@@ -108,16 +109,20 @@ interval.rules <- apriori(chronic_interval, parameter=list(support = 0.1,
 ```
 
 ```{r summary1}
-# Getting information about the rule sets
 sum.freq <- summary(freq.rules)
 sum.interval <- summary(interval.rules)
+# Information about the equal frequency rule set
 sum.freq@quality
+# Size of the equal frequancy rule set
 sum.freq@lengths
+# Information about the equal interval rule set
 sum.interval@quality
+# Size of the equal interval rule set
 sum.interval@lengths
 
-# Scatter plots for the rule sets
+# Scatter plot for the equal frequency rule set
 plot(freq.rules)
+# Scatter plot for the equal interval rule set
 plot(interval.rules)
 
 
@@ -125,9 +130,10 @@ plot(interval.rules)
 
 The mean for confidence is pretty similar in both cases the interval discretization has a little bit higher average lift. The biggest difference is between support but that is probably because the rule set which we get with the interval discretization is much bigger than the other one and therefor probably has many low supported rules. Ploting the results we could see that the equal frequency discretization gave us fewer rules and fewer rules with high lift and the equal interval discretization gave us way to many rules but more rules with higher lift.
 
-Looking at our data we saw that some of our attributes had a wide range of values but the most common values were all at the same small interval. For that reason we decided to use a change our discretization and use equal frequency for those attributes and equal intervals for the other ones. With that approach we got higher average confidence and lift and a more manageble rule set than by using only interval so we decided to use that method.
+Looking at our data we saw that some of our attributes had a wide range of values but the most common values were all at the same small interval. For that reason we decided to use a change our discretization and use equal frequency for those attributes and equal intervals for the other ones. With that approach we got higher average confidence and lift and a more manageble rule set than by using only equal intervals. Looking at the plot we can also see that we get rid of alot uninteresting rules from our equal interval rule set but get more rules with high lift than in our equal frequency rule set.
 
 ```{r results="hide",warning=FALSE}
+# Discretizising with a mixed method
 chronicDisc <- discretizeDF(chronic, methods = list(
   age = list(method = "interval", breaks = 10 ),
   bp  = list(method = "interval", breaks = 10 ),
@@ -142,29 +148,29 @@ chronicDisc <- discretizeDF(chronic, methods = list(
   rbcc= list(method = "interval", breaks = 10 )
   ))
 
+chronicDisc$class <- NULL
+
+# Running the apriori algorithm on our new data set
 chronic.rules <- apriori(chronicDisc, parameter=list(support = 0.1, 
               confidence = 0.9, minlen=2, maxlen=4))
 ```
 ```{r}
+# Information and plot for our new rule set.
 sum.chronic <- summary(chronic.rules)
+# Statistics for the new rule set
 sum.chronic@quality
+# Size of the new rule set
 sum.chronic@lengths
 
-```
-
-
-```{r, warning = FALSE}
 plot(chronic.rules)
 ```
 
-
 ```{r summary, warning=FALSE}
-inspect(head(freq.rules, n = 30, by ="lift"))
-
-inspect(head(interval.rules, n = 30, by ="lift"))
-
-
+inspect(head(chronic.rules, n = 15, by ="lift"))
 ```
+
+
+
 ```{r}
 interval.rules <- apriori(chronic_interval, parameter=list(support = 0.1,
                   confidence = 0.95, minlen=2, maxlen=2))
