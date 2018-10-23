@@ -212,7 +212,6 @@ sum.chronic@lengths
 ```
 
 
-
 ### 4. Results and Recommendations
 
 The final rule set we got has 373 rules. The average support is 0.52, average confidence 0.95 and an average lift of 1.13. The best rules we got are all related to albumin levels, pus cell status, red blood cell status and hypertension which suggests that there could be a strong connection between these factors. With our knowledge of the subject it is hard for us to say if these results would be interesting or not and if some rules are more interesting than others without basing our opinion only on the numbers. For that reason we do not want to say if any rules are more interesting than others and would recommend that someone more knowledgeable about the subject would make that decision.
