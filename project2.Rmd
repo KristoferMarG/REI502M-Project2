@@ -106,25 +106,25 @@ chronic_cluster <- discretizeDF(chronic, methods = list(
   rbcc= list(method = "cluster", breaks = 10 )
   ))
 
-#chronic_freq$class <- NULL
-#chronic_interval$class <- NULL
-#chronic_cluster$class <- NULL
+chronic_freq$class <- NULL
+chronic_interval$class <- NULL
+chronic_cluster$class <- NULL
 ```
 
 ### 3. Rule mining process
 
-Since the data set is not very big we decided to put the minimum support threshold for the Apriori algorithm at 0.15 to prevent getting results that could very well be coincidental. We also decided to set the confidence factor pretty high at 0.97 since we are only interested in very strong rules. Since we have so many attributes with many different values we decided to limit the length of the rules to 4 to avoid getting rules that would be to complicated. We ran the apiori algorithm for the 3 differently discretizised data sets and compared the results.
+Since the data set is not very big we decided to put the minimum support threshold for the Apriori algorithm at 0.1 to prevent getting results that could very well be coincidental. We also decided to set the confidence factor pretty high at 0.97 since we are only interested in very strong rules. Since we have so many attributes with many different values we decided to limit the length of the rules to 3 to avoid getting rules that would be to complicated. We ran the apiori algorithm for the 3 differently discretizised data sets and compared the results.
 
 ```{r seconddata, results="hide",warning=FALSE}
 
-freq.rules <- apriori(chronic_freq, parameter=list(support = 0.15, 
-              confidence = 0.97, minlen=2, maxlen=4))
+freq.rules <- apriori(chronic_freq, parameter=list(support = 0.1, 
+              confidence = 0.97, minlen=2, maxlen=3))
 
-interval.rules <- apriori(chronic_interval, parameter=list(support = 0.15,
-                  confidence = 0.97, minlen=2, maxlen=4) )
+interval.rules <- apriori(chronic_interval, parameter=list(support = 0.1,
+                  confidence = 0.97, minlen=2, maxlen=3))
 
-cluster.rules <- apriori(chronic_cluster, parameter=list(support = 0.15,
-                  confidence = 0.97, minlen=2, maxlen=4))
+cluster.rules <- apriori(chronic_cluster, parameter=list(support = 0.1,
+                  confidence = 0.97, minlen=2, maxlen=3))
 ```
 
 ```{r summary1}
@@ -134,31 +134,32 @@ sum.interval <- summary(interval.rules)
 sum.cluster <- summary(cluster.rules)
 
 sum.freq@quality
+sum.freq@lengths
 sum.interval@quality
+sum.interval@lengths
 sum.cluster@quality
-
-sum.freq
+sum.cluster@lengths
 
 ```
 
+The mean for confidence and lift are pretty similar in all three cases but since the rule set that we get with the equal frequency discretization has a considerably higher support and the set is much smaller we decide to use that one.
 
+
+```{r, warning = FALSE}
+plot(freq.rules)
+#plot(freq.rules, method = "two-key plot")
+```
 
 
 ```{r summary, warning=FALSE}
-inspect(head(freq.rules, n = 100, by ="lift"))
-#inspect(head(interval.rules, n = 30, by ="lift"))
+inspect(head(freq.rules, n = 200, by ="lift"))
+#inspect(head(freq.rules, n = 30, by ="confidence"))
+#inspect(head(freq.rules, n = 30, by ="support"))
+
+inspect(head(interval.rules, n = 100, by ="lift"))
 #inspect(head(cluster.rules, n = 30, by = "lift"))
 
 ```
-```{r , warning = FALSE}
-
-plot(freq.rules)
-plot(freq.rules, method = "two-key plot")
-plot(interval.rules)
-plot(cluster.rules)
-
-```
-
 
 
 ### 4. Results + Recommendations
